@@ -1,16 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import { CampoEntrada } from "../campoEntrada";
-import { Botao } from "../botao";
-import { Display } from "../display";
 import NetworkBackground from "@/components/NetworkBackground";
+import { algorithmInfo, autoDecrypt, CryptographyAlgorithm, decrypt, encrypt } from "@/utils/cryptography";
+import { useState } from "react";
+import AlgorithmSelector from "../algorithmSelector";
+import { Botao } from "../botao";
+import { CampoEntrada } from "../campoEntrada";
+import { Display } from "../display";
+import HelpButton from "../helpButton";
+import KeyInput from "../keyInput";
 import Logo from "../logo";
 import Modal from "../modal";
-import AlgorithmSelector from "../algorithmSelector";
-import KeyInput from "../keyInput";
 import Tutorial from "../tutorial";
-import { encrypt, decrypt, autoDecrypt, CryptographyAlgorithm, algorithmInfo } from "@/utils/cryptography";
 
 const alfabeto = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split("");
 const alfabetoSubstituto = [
@@ -238,7 +239,7 @@ export default function HomePage() {
               }
             />
           
-          <div className="space-y-3 transition-all duration-300 ease-in-out">
+          <div className="space-y-3 w-full mx-auto flex flex-col transition-all duration-300 ease-in-out">
              <Botao onClick={handleCryptography}>
                {isLoading 
                  ? (mode === 'encrypt' ? "Criptografando..." : "Descriptografando...") 
@@ -253,14 +254,7 @@ export default function HomePage() {
               )}
            </div>
            
-           <div className="flex gap-3 transition-all duration-300 ease-in-out">
-             <Botao onClick={() => setTutorialAberto(true)}>
-               🎓 Tutorial Interativo
-             </Botao>
-             <Botao onClick={() => setModalAberto(true)}>
-               📚 Sobre os Algoritmos
-             </Botao>
-           </div>
+
         </div>
       </div>
       <Modal
@@ -284,6 +278,11 @@ export default function HomePage() {
       <Tutorial 
         isOpen={tutorialAberto}
         onClose={() => setTutorialAberto(false)}
+      />
+      
+      <HelpButton 
+        onTutorialClick={() => setTutorialAberto(true)}
+        onAboutClick={() => setModalAberto(true)}
       />
     </main>
   );

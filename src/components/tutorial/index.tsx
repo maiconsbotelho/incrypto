@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { CryptographyAlgorithm, algorithmInfo } from "@/utils/cryptography";
+import { useState } from "react";
 
 interface TutorialProps {
   isOpen: boolean;
@@ -226,7 +226,7 @@ export default function Tutorial({ isOpen, onClose }: TutorialProps) {
                 : 'bg-gray-700 text-white hover:bg-gray-600'
             }`}
           >
-            ← Anterior
+            ← 
           </button>
 
           <div className="flex gap-2">
@@ -260,7 +260,7 @@ export default function Tutorial({ isOpen, onClose }: TutorialProps) {
               onClick={nextStep}
               className="px-4 py-2 bg-[#00ffc3] text-black rounded hover:bg-[#00e6b0] transition-colors font-medium"
             >
-              Próximo →
+               →
             </button>
           )}
         </div>
