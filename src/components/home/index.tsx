@@ -53,6 +53,7 @@ export default function HomePage() {
   const [mensagem, setMensagem] = useState("");
   const [deslocamento, setDeslocamento] = useState(0);
   const [resultado, setResultado] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   function gerarHashPalavra(palavra: string) {
     let hash = 0;
@@ -86,18 +87,28 @@ export default function HomePage() {
     return textoCriptografado.join("");
   }
 
-  function handleCriptografar() {
+  async function handleCriptografar() {
+    setIsLoading(true);
+    // Simula um delay para mostrar o loading
+    await new Promise(resolve => setTimeout(resolve, 1000));
     const textoMaiusculo = mensagem.toUpperCase();
     const resultadoFinal = cifrar(textoMaiusculo, deslocamento);
     setResultado(resultadoFinal);
+    setIsLoading(false);
   }
 
   return (
-    <main className="relative min-h-screen flex flex-col items-center pt-20 justify-start text-white font-sans p-4 overflow-hidden">
-      <NetworkBackground /> {/* 👈 insere o background */}
+    <main className="relative min-h-screen flex flex-col items-center pt-8 sm:pt-12 md:pt-16 lg:pt-20 justify-start text-white font-sans px-4 sm:px-6 md:px-8 overflow-hidden">
+      <NetworkBackground />
       <Logo />
-      <div className="w-full flex flex-col items-center justify-center max-w-md lg:max-w-[90%] mt-8 gap-4 z-10">
-        <CampoEntrada id="mensagem" label="Mensagem:" value={mensagem} onChange={(e) => setMensagem(e.target.value)} />
+      <div className="w-full flex flex-col items-center justify-center max-w-sm sm:max-w-md lg:max-w-2xl xl:max-w-4xl mt-6 sm:mt-8 gap-4 sm:gap-6 z-10">
+        <CampoEntrada 
+          id="mensagem" 
+          label="Mensagem:" 
+          value={mensagem} 
+          onChange={(e) => setMensagem(e.target.value)}
+          placeholder="Digite sua mensagem aqui..."
+        />
         <CampoSelecao
           id="deslocamento"
           label="Deslocamento:"
@@ -106,19 +117,25 @@ export default function HomePage() {
           onChange={(e) => setDeslocamento(Number(e.target.value))}
         />
         <Botao onClick={handleCriptografar}>Criptografar</Botao>
-        {/* Espaço fixo para o resultado */}
-        <div className="w-full mt-4">
-          <div className="min-h-16 flex items-start justify-center">{resultado && <Display result={resultado} />}</div>
+        {/* Espaço responsivo para o resultado */}
+        <div className="w-full mt-4 sm:mt-6">
+          <div className="min-h-16 flex items-start justify-center">
+            {(resultado || isLoading) && <Display result={resultado} isLoading={isLoading} />}
+          </div>
         </div>
       </div>
       <Modal
-        title="Como usar a aplicação"
-        content={[
-          "1. Insira a mensagem que deseja criptografar.",
-          "2. Escolha o deslocamento desejado.",
-          "3. Clique no botão 'Criptografar' para ver o resultado.",
-        ]}
-      />
+        isOpen={false}
+        onClose={() => {}}
+        title="Como usar o Incrypto"
+      >
+        <ul className="list-disc pl-5 space-y-2">
+          <li>Digite a mensagem que deseja criptografar</li>
+          <li>Escolha o deslocamento (número de posições para mover cada letra)</li>
+          <li>Clique em 'Criptografar' para ver o resultado</li>
+          <li>A cifra de César substitui cada letra por outra que está um número fixo de posições à frente no alfabeto</li>
+        </ul>
+      </Modal>
     </main>
   );
 }

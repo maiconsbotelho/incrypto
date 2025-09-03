@@ -1,5 +1,3 @@
-import Modal from "../modal";
-
 interface CampoSelecaoProps {
   id: string;
   label: string;
@@ -10,32 +8,24 @@ interface CampoSelecaoProps {
 
 export function CampoSelecao({ id, label, value, options, onChange }: CampoSelecaoProps) {
   return (
-    <div className="flex justify-center items-center w-[200px]">
-      <div className="flex flex-col md:flex-row items-center mb-4 w-full max-w-md">
-        <label htmlFor={id} className="mb-2 md:mb-0 md:mr-4">
+    <div className="w-full flex flex-col items-center mb-4 max-w-md mx-auto">
+      <div className="flex items-start justify-start w-full px-4 md:px-6">
+        <label htmlFor={id} className="mb-2 text-start text-white">
           {label}
         </label>
-        <select
-          id={id}
-          value={value}
-          onChange={onChange}
-          className="flex-1 px-4 py-2 rounded bg-black/40 text-white border border-white"
-        >
-          {options.map((option, index) => (
-            <option key={index} value={index}>
-              {option}
-            </option>
-          ))}
-        </select>
       </div>
-      <Modal
-        title="Como usar a aplicação"
-        content={[
-          "1. Insira a mensagem que deseja criptografar.",
-          "2. Escolha o deslocamento desejado.",
-          "3. Clique no botão 'Criptografar' para ver o resultado.",
-        ]}
-      />
+      <select
+        id={id}
+        value={value}
+        onChange={onChange}
+        className="w-[90%] min-h-[44px] px-4 py-3 rounded-lg bg-black/40 text-white border border-white/30 focus:border-[#00ffc3] focus:outline-none focus:ring-2 focus:ring-[#00ffc3]/20 transition-all duration-200 text-base"
+      >
+        {options.map((option, index) => (
+          <option key={index} value={index} className="bg-gray-800 text-white">
+            {option}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }
