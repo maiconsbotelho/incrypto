@@ -99,7 +99,7 @@ export function base64Encode(text: string): string {
 // Decodificação Base64
 export function base64Decode(text: string): string {
   try {
-    return decodeURIComponent(escape(atob(text)));
+    return atob(text);
   } catch (error) {
     return 'Erro na decodificação Base64 - texto inválido';
   }

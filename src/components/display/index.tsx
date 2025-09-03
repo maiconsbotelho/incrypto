@@ -6,9 +6,10 @@ interface DisplayProps {
   result: string;
   isLoading?: boolean;
   algorithm?: string;
+  showCopyButton?: boolean;
 }
 
-export function Display({ result, isLoading = false, algorithm }: DisplayProps) {
+export function Display({ result, isLoading = false, algorithm, showCopyButton = true }: DisplayProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -46,7 +47,7 @@ export function Display({ result, isLoading = false, algorithm }: DisplayProps) 
 
   if (isLoading) {
     return (
-      <div className="w-[90%] mt-8 p-4 bg-black/40 rounded border border-white max-w-md lg:max-w-full break-words text-center">
+      <div className="w-full mt-8 p-4 bg-black/40 rounded border border-white break-words text-center">
         <div className="flex items-center justify-center space-x-2">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
           <p className="text-white">Processando...</p>
@@ -56,13 +57,13 @@ export function Display({ result, isLoading = false, algorithm }: DisplayProps) 
   }
 
   return (
-    <div className="w-[90%] mt-8 p-4 bg-black/40 rounded border border-white max-w-md lg:max-w-full break-words">
+    <div className="w-full mt-8 p-4 bg-black/40 rounded border border-white break-words">
       {/* Header com algoritmo e botão copiar */}
       <div className="flex justify-between items-center mb-3">
         <span className="text-xs text-gray-400">
           {algorithm ? `Algoritmo: ${algorithm}` : 'Resultado'}
         </span>
-        {result && (
+        {result && showCopyButton && (
           <button
             onClick={handleCopy}
             className={`px-3 py-1 rounded text-xs font-medium transition-all duration-200 min-h-[32px] ${

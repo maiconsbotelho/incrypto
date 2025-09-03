@@ -49,6 +49,22 @@ button {
   transition: all 0.2s ease-in-out;
 }
 
+/* Estilização customizada para select */
+select {
+  /* Remove a aparência padrão do select */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Força as opções do select a terem a mesma largura do select */
+select option {
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+}
+
 button:hover {
   transform: scale(1.05);
 }

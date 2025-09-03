@@ -69,7 +69,7 @@ export default function HomePage() {
     const info = algorithmInfo[newAlgorithm];
     if (info.keyType === 'number') {
       setKey(3);
-    } else if (info.keyType === 'string') {
+    } else if (info.keyType === 'text') {
       setKey('');
     } else {
       setKey('');
@@ -80,6 +80,13 @@ export default function HomePage() {
 
   const handleCryptography = async () => {
     if (!texto.trim()) return;
+    
+    // Validar chave para algoritmos que precisam
+    const info = algorithmInfo[algorithm];
+    if (info.keyType === 'text' && (!key || key === '')) {
+      setResultado('Por favor, insira uma chave para o algoritmo ' + info.name);
+      return;
+    }
     
     setIsLoading(true);
     
@@ -145,7 +152,27 @@ export default function HomePage() {
     <main className="relative min-h-screen flex flex-col items-center pt-8 sm:pt-12 md:pt-16 lg:pt-20 justify-start text-white font-sans px-4 sm:px-6 md:px-8 overflow-hidden">
       <NetworkBackground />
       <Logo />
-      <div className="w-full flex flex-col items-center justify-center max-w-sm sm:max-w-md lg:max-w-2xl xl:max-w-4xl mt-6 sm:mt-8 gap-4 sm:gap-6 z-10">
+      
+      {/* Visor de Resultado no Topo - Sempre Visível */}
+      <div className="w-full flex flex-col items-center justify-center max-w-sm sm:max-w-md lg:max-w-2xl xl:max-w-4xl mt-6 sm:mt-8 z-10 px-4">
+        <div className="w-full max-w-md space-y-4 transition-all duration-500 ease-in-out">
+          {autoDetectResult && (
+              <div className="w-full mb-4 p-3 bg-purple-900/30 border border-purple-600/50 rounded-lg animate-slideDown transition-all duration-300">
+                <p className="text-purple-300 text-sm text-center animate-fadeIn">
+                  {autoDetectResult}
+                </p>
+              </div>
+            )}
+          <Display 
+            result={resultado || "Aguardando entrada..."} 
+            isLoading={isLoading} 
+            algorithm={algorithmInfo[algorithm].name}
+            showCopyButton={!!resultado}
+          />
+        </div>
+      </div>
+      
+      <div className="w-full flex flex-col items-center justify-center max-w-sm sm:max-w-md lg:max-w-2xl xl:max-w-4xl mt-4 sm:mt-6 gap-4 sm:gap-6 z-10">
         <div className="w-full max-w-md space-y-6 transition-all duration-500 ease-in-out">
           {/* Seletor de Modo */}
           <div className="flex bg-gray-800 rounded-lg p-1 border border-gray-600">
@@ -171,16 +198,34 @@ export default function HomePage() {
             </button>
           </div>
 
-          <AlgorithmSelector
-            value={algorithm}
-            onChange={handleAlgorithmChange}
-          />
+          {/* Seletores de Algoritmo e Chave */}
+          <div className="flex gap-3">
+            <div className="flex-1">
+              <AlgorithmSelector
+                value={algorithm}
+                onChange={handleAlgorithmChange}
+              />
+            </div>
+            
+            {algorithmInfo[algorithm].keyType === 'number' && (
+              <div className="w-24">
+                <KeyInput
+                  algorithm={algorithm}
+                  value={key}
+                  onChange={setKey}
+                />
+              </div>
+            )}
+          </div>
           
-          <KeyInput
-            algorithm={algorithm}
-            value={key}
-            onChange={setKey}
-          />
+          {/* Chave de texto (quando necessária) */}
+          {algorithmInfo[algorithm].keyType === 'text' && (
+            <KeyInput
+              algorithm={algorithm}
+              value={key}
+              onChange={setKey}
+            />
+          )}
           
           <CampoEntrada
               id="texto"
@@ -216,27 +261,6 @@ export default function HomePage() {
                📚 Sobre os Algoritmos
              </Botao>
            </div>
-        </div>
-        {/* Espaço responsivo para o resultado */}
-        <div className="w-full mt-4 sm:mt-6">
-          <div className="min-h-16 flex items-start justify-center transition-all duration-500 ease-in-out">
-            {resultado && (
-           <div className="w-full animate-fadeIn">
-             {autoDetectResult && (
-               <div className="w-[90%] mx-auto mb-4 p-3 bg-purple-900/30 border border-purple-600/50 rounded-lg animate-slideDown transition-all duration-300">
-                 <p className="text-purple-300 text-sm text-center animate-fadeIn">
-                   {autoDetectResult}
-                 </p>
-               </div>
-             )}
-             <Display 
-               result={resultado} 
-               isLoading={isLoading} 
-               algorithm={algorithmInfo[algorithm].name}
-             />
-           </div>
-         )}
-          </div>
         </div>
       </div>
       <Modal
