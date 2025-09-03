@@ -1,0 +1,50 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="256" fill="#000000"/>
+  
+  <!-- Outer ring -->
+  <circle cx="256" cy="256" r="220" stroke="#00ffc3" stroke-width="8" fill="none"/>
+  
+  <!-- Inner decorative ring -->
+  <circle cx="256" cy="256" r="180" stroke="#00ffc3" stroke-width="2" fill="none" opacity="0.5"/>
+  
+  <!-- Lock icon -->
+  <g transform="translate(256, 256)">
+    <!-- Lock body -->
+    <rect x="-50" y="-15" width="100" height="80" rx="10" fill="#00ffc3"/>
+    
+    <!-- Lock shackle -->
+    <path d="M -35 -15 L -35 -45 Q -35 -65 0 -65 Q 35 -65 35 -45 L 35 -15" 
+          stroke="#00ffc3" stroke-width="8" fill="none"/>
+    
+    <!-- Keyhole -->
+    <circle cx="0" cy="15" r="12" fill="#000000"/>
+    <rect x="-3" y="15" width="6" height="25" fill="#000000"/>
+  </g>
+  
+  <!-- Decorative binary pattern -->
+  <g opacity="0.4" font-family="monospace" font-size="24" fill="#00ffc3">
+    <text x="80" y="100">01010</text>
+    <text x="350" y="130">11001</text>
+    <text x="60" y="400">10110</text>
+    <text x="320" y="420">00111</text>
+    <text x="400" y="200">101</text>
+    <text x="50" y="250">110</text>
+  </g>
+  
+  <!-- Network nodes pattern -->
+  <g opacity="0.3" stroke="#00ffc3" stroke-width="1" fill="#00ffc3">
+    <circle cx="120" cy="180" r="3"/>
+    <circle cx="380" cy="160" r="3"/>
+    <circle cx="140" cy="350" r="3"/>
+    <circle cx="360" cy="380" r="3"/>
+    <line x1="120" y1="180" x2="140" y2="350"/>
+    <line x1="380" y1="160" x2="360" y2="380"/>
+  </g>
+  
+  <!-- App name -->
+  <text x="256" y="450" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#00ffc3">INCRYPTO</text>
+  
+  <!-- Subtitle -->
+  <text x="256" y="480" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#00ffc3" opacity="0.8">Criptografia Educacional</text>
+</svg>

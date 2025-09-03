@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import { CampoEntrada } from "../campoEntrada";
-import { CampoSelecao } from "../campoSelecao";
 import { Botao } from "../botao";
 import { Display } from "../display";
 import NetworkBackground from "@/components/NetworkBackground";
 import Logo from "../logo";
 import Modal from "../modal";
+import AlgorithmSelector from "../algorithmSelector";
+import KeyInput from "../keyInput";
+import Tutorial from "../tutorial";
+import { encrypt, decrypt, autoDecrypt, CryptographyAlgorithm, algorithmInfo } from "@/utils/cryptography";
 
 const alfabeto = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split("");
 const alfabetoSubstituto = [
@@ -50,92 +53,214 @@ const alfabetoSubstituto = [
 ];
 
 export default function HomePage() {
-  const [mensagem, setMensagem] = useState("");
-  const [deslocamento, setDeslocamento] = useState(0);
+  const [texto, setTexto] = useState("");
+  const [algorithm, setAlgorithm] = useState<CryptographyAlgorithm>('caesar');
+  const [key, setKey] = useState<string | number>(3);
   const [resultado, setResultado] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [modalAberto, setModalAberto] = useState(false);
+  const [tutorialAberto, setTutorialAberto] = useState(false);
+  const [mode, setMode] = useState<'encrypt' | 'decrypt'>('encrypt');
+  const [autoDetectResult, setAutoDetectResult] = useState<string>('');
 
-  function gerarHashPalavra(palavra: string) {
-    let hash = 0;
-    for (let i = 0; i < palavra.length; i++) {
-      hash = (hash << 5) - hash + palavra.charCodeAt(i);
+  const handleAlgorithmChange = (newAlgorithm: CryptographyAlgorithm) => {
+    setAlgorithm(newAlgorithm);
+    // Reset key based on algorithm
+    const info = algorithmInfo[newAlgorithm];
+    if (info.keyType === 'number') {
+      setKey(3);
+    } else if (info.keyType === 'string') {
+      setKey('');
+    } else {
+      setKey('');
     }
-    return Math.abs(hash).toString(16);
-  }
+    // Clear result when changing algorithm
+    setResultado('');
+  };
 
-  function gerarCaractereExtra(palavra: string, indice: number) {
-    const hash = gerarHashPalavra(palavra);
-    return hash[indice % hash.length];
-  }
-
-  function cifrar(texto: string, deslocamento: number) {
-    const textoCriptografado: string[] = [];
-    for (let i = 0; i < texto.length; i++) {
-      const charAtual = texto[i];
-      const indiceOriginal = alfabeto.indexOf(charAtual);
-      if (indiceOriginal !== -1) {
-        const novoIndice = (indiceOriginal + deslocamento) % alfabeto.length;
-        const novaLetra = alfabeto[novoIndice];
-        const substituida = alfabetoSubstituto[alfabeto.indexOf(novaLetra)];
-        textoCriptografado.push(substituida);
-        const caractereExtra = gerarCaractereExtra(texto, i);
-        textoCriptografado.push(caractereExtra);
-      } else {
-        textoCriptografado.push(charAtual);
-      }
-    }
-    return textoCriptografado.join("");
-  }
-
-  async function handleCriptografar() {
+  const handleCryptography = async () => {
+    if (!texto.trim()) return;
+    
     setIsLoading(true);
-    // Simula um delay para mostrar o loading
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    const textoMaiusculo = mensagem.toUpperCase();
-    const resultadoFinal = cifrar(textoMaiusculo, deslocamento);
-    setResultado(resultadoFinal);
+    
+    try {
+      // Simula delay de processamento
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      let result: string;
+      
+      if (mode === 'encrypt') {
+        const encryptResult = encrypt(texto, algorithm, key);
+        result = encryptResult.result;
+      } else {
+        const decryptResult = decrypt(texto, algorithm, key);
+        result = decryptResult.result;
+      }
+      
+      setResultado(result);
+      setAutoDetectResult(''); // Clear auto-detect when manual operation
+    } catch (error) {
+      console.error('Erro na criptografia:', error);
+      setResultado('Erro ao processar o texto');
+    }
+    
     setIsLoading(false);
-  }
+  };
+
+  const handleAutoDecrypt = async () => {
+    if (!texto.trim()) return;
+    
+    setIsLoading(true);
+    
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const autoResult = autoDecrypt(texto);
+      
+      if (autoResult.algorithm) {
+        setResultado(autoResult.result);
+        setAutoDetectResult(
+          `🤖 Detectado: ${algorithmInfo[autoResult.algorithm].name} (Confiança: ${autoResult.confidence === 'high' ? 'Alta' : autoResult.confidence === 'medium' ? 'Média' : 'Baixa'})`
+        );
+        
+        // Update algorithm and key if detected
+        setAlgorithm(autoResult.algorithm);
+        if (autoResult.alternatives.length > 0 && autoResult.alternatives[0].key) {
+          setKey(autoResult.alternatives[0].key);
+        }
+      } else {
+        setResultado(autoResult.result);
+        setAutoDetectResult('❌ Detecção automática falhou');
+      }
+    } catch (error) {
+      console.error('Erro na detecção automática:', error);
+      setResultado('Erro na detecção automática');
+      setAutoDetectResult('❌ Erro na detecção');
+    }
+    
+    setIsLoading(false);
+  };
 
   return (
     <main className="relative min-h-screen flex flex-col items-center pt-8 sm:pt-12 md:pt-16 lg:pt-20 justify-start text-white font-sans px-4 sm:px-6 md:px-8 overflow-hidden">
       <NetworkBackground />
       <Logo />
       <div className="w-full flex flex-col items-center justify-center max-w-sm sm:max-w-md lg:max-w-2xl xl:max-w-4xl mt-6 sm:mt-8 gap-4 sm:gap-6 z-10">
-        <CampoEntrada 
-          id="mensagem" 
-          label="Mensagem:" 
-          value={mensagem} 
-          onChange={(e) => setMensagem(e.target.value)}
-          placeholder="Digite sua mensagem aqui..."
-        />
-        <CampoSelecao
-          id="deslocamento"
-          label="Deslocamento:"
-          value={deslocamento}
-          options={alfabeto}
-          onChange={(e) => setDeslocamento(Number(e.target.value))}
-        />
-        <Botao onClick={handleCriptografar}>Criptografar</Botao>
+        <div className="w-full max-w-md space-y-6 transition-all duration-500 ease-in-out">
+          {/* Seletor de Modo */}
+          <div className="flex bg-gray-800 rounded-lg p-1 border border-gray-600">
+            <button
+              onClick={() => setMode('encrypt')}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
+                mode === 'encrypt'
+                  ? 'bg-[#00ffc3] text-black'
+                  : 'text-gray-300 hover:text-white'
+              }`}
+            >
+              🔒 Criptografar
+            </button>
+            <button
+              onClick={() => setMode('decrypt')}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
+                mode === 'decrypt'
+                  ? 'bg-[#00ffc3] text-black'
+                  : 'text-gray-300 hover:text-white'
+              }`}
+            >
+              🔓 Descriptografar
+            </button>
+          </div>
+
+          <AlgorithmSelector
+            value={algorithm}
+            onChange={handleAlgorithmChange}
+          />
+          
+          <KeyInput
+            algorithm={algorithm}
+            value={key}
+            onChange={setKey}
+          />
+          
+          <CampoEntrada
+              id="texto"
+              label={mode === 'encrypt' ? "Texto para criptografar:" : "Texto para descriptografar:"}
+              value={texto}
+              onChange={(e) => setTexto(e.target.value)}
+              placeholder={mode === 'encrypt' 
+                ? "Digite o texto para criptografar..." 
+                : "Digite o texto para descriptografar..."
+              }
+            />
+          
+          <div className="space-y-3 transition-all duration-300 ease-in-out">
+             <Botao onClick={handleCryptography}>
+               {isLoading 
+                 ? (mode === 'encrypt' ? "Criptografando..." : "Descriptografando...") 
+                 : (mode === 'encrypt' ? "🔒 Criptografar" : "🔓 Descriptografar")
+               }
+             </Botao>
+             
+             {mode === 'decrypt' && (
+                <Botao onClick={handleAutoDecrypt}>
+                  {isLoading ? "Detectando..." : "🤖 Detecção Automática"}
+                </Botao>
+              )}
+           </div>
+           
+           <div className="flex gap-3 transition-all duration-300 ease-in-out">
+             <Botao onClick={() => setTutorialAberto(true)}>
+               🎓 Tutorial Interativo
+             </Botao>
+             <Botao onClick={() => setModalAberto(true)}>
+               📚 Sobre os Algoritmos
+             </Botao>
+           </div>
+        </div>
         {/* Espaço responsivo para o resultado */}
         <div className="w-full mt-4 sm:mt-6">
-          <div className="min-h-16 flex items-start justify-center">
-            {(resultado || isLoading) && <Display result={resultado} isLoading={isLoading} />}
+          <div className="min-h-16 flex items-start justify-center transition-all duration-500 ease-in-out">
+            {resultado && (
+           <div className="w-full animate-fadeIn">
+             {autoDetectResult && (
+               <div className="w-[90%] mx-auto mb-4 p-3 bg-purple-900/30 border border-purple-600/50 rounded-lg animate-slideDown transition-all duration-300">
+                 <p className="text-purple-300 text-sm text-center animate-fadeIn">
+                   {autoDetectResult}
+                 </p>
+               </div>
+             )}
+             <Display 
+               result={resultado} 
+               isLoading={isLoading} 
+               algorithm={algorithmInfo[algorithm].name}
+             />
+           </div>
+         )}
           </div>
         </div>
       </div>
       <Modal
-        isOpen={false}
-        onClose={() => {}}
-        title="Como usar o Incrypto"
+        isOpen={modalAberto}
+        onClose={() => setModalAberto(false)}
+        title="Sobre os Algoritmos de Criptografia"
       >
-        <ul className="list-disc pl-5 space-y-2">
-          <li>Digite a mensagem que deseja criptografar</li>
-          <li>Escolha o deslocamento (número de posições para mover cada letra)</li>
-          <li>Clique em 'Criptografar' para ver o resultado</li>
-          <li>A cifra de César substitui cada letra por outra que está um número fixo de posições à frente no alfabeto</li>
-        </ul>
+        <div className="space-y-4">
+          {Object.entries(algorithmInfo).map(([key, info]) => (
+            <div key={key} className="border-b border-gray-600 pb-3 last:border-b-0">
+              <h3 className="font-semibold text-[#00ffc3] mb-2">{info.name}</h3>
+              <p className="text-gray-300 text-sm mb-2">{info.description}</p>
+              <p className="text-xs text-gray-400">
+                <strong>Tipo de chave:</strong> {info.keyType === 'number' ? 'Numérica' : info.keyType === 'string' ? 'Texto' : 'Nenhuma'}
+              </p>
+            </div>
+          ))}
+        </div>
       </Modal>
+      
+      <Tutorial 
+        isOpen={tutorialAberto}
+        onClose={() => setTutorialAberto(false)}
+      />
     </main>
   );
 }

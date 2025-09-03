@@ -1,11 +1,25 @@
-import { useState, useEffect } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 
 interface DisplayProps {
   result: string;
   isLoading?: boolean;
+  algorithm?: string;
 }
 
-export function Display({ result, isLoading = false }: DisplayProps) {
+export function Display({ result, isLoading = false, algorithm }: DisplayProps) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(result);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error('Erro ao copiar:', error);
+    }
+  };
   const [displayedText, setDisplayedText] = useState("");
 
   useEffect(() => {
@@ -42,8 +56,33 @@ export function Display({ result, isLoading = false }: DisplayProps) {
   }
 
   return (
-    <div className="w-[90%] mt-8 p-4 bg-black/40 rounded border border-white max-w-md lg:max-w-full break-words text-center">
-      <p className="text-white whitespace-pre-wrap">{displayedText}</p>
+    <div className="w-[90%] mt-8 p-4 bg-black/40 rounded border border-white max-w-md lg:max-w-full break-words">
+      {/* Header com algoritmo e botão copiar */}
+      <div className="flex justify-between items-center mb-3">
+        <span className="text-xs text-gray-400">
+          {algorithm ? `Algoritmo: ${algorithm}` : 'Resultado'}
+        </span>
+        {result && (
+          <button
+            onClick={handleCopy}
+            className={`px-3 py-1 rounded text-xs font-medium transition-all duration-200 min-h-[32px] ${
+              copied 
+                ? 'bg-green-600 text-white' 
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+            disabled={copied}
+          >
+            {copied ? '✓ Copiado!' : '📋 Copiar'}
+          </button>
+        )}
+      </div>
+      
+      {/* Resultado */}
+      <div className="text-center">
+        <p className="text-white font-mono text-sm sm:text-base break-all">
+          {displayedText}
+        </p>
+      </div>
     </div>
-  );
-}
+    );
+  }
