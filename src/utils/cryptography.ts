@@ -190,7 +190,7 @@ export const algorithmInfo = {
     name: 'Cifra de César',
     description: 'Substitui cada letra por outra que está um número fixo de posições à frente no alfabeto.',
     keyType: 'number',
-    keyLabel: 'Deslocamento',
+    keyLabel: 'Desloc.',
     keyPlaceholder: 'Ex: 3',
     example: 'HELLO → KHOOR (deslocamento 3)'
   },

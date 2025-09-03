@@ -13,12 +13,17 @@ export default function AlgorithmSelector({ value, onChange, className = "" }: A
   const algorithms: CryptographyAlgorithm[] = ['caesar', 'vigenere', 'base64', 'rot13'];
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ left: 0, top: 0 });
+  const [isClient, setIsClient] = useState(false);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (showTooltip && tooltipRef.current) {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (showTooltip && tooltipRef.current && isClient) {
       const tooltip = tooltipRef.current;
       const tooltipRect = tooltip.getBoundingClientRect();
       const viewportWidth = window.innerWidth;
@@ -45,7 +50,7 @@ export default function AlgorithmSelector({ value, onChange, className = "" }: A
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [showTooltip, value]);
+  }, [showTooltip, value, isClient]);
 
   return (
     <div className={`w-full ${className} relative`}>

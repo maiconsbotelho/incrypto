@@ -7,8 +7,15 @@ import * as THREE from "three";
 // Otimização mobile-first: configuração responsiva
 function useResponsiveConfig() {
   const [config, setConfig] = useState({ numPoints: 75, connectDistance: 1.8 });
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+    
     const updateConfig = () => {
       const width = window.innerWidth;
       setConfig({
@@ -20,7 +27,7 @@ function useResponsiveConfig() {
     updateConfig();
     window.addEventListener('resize', updateConfig);
     return () => window.removeEventListener('resize', updateConfig);
-  }, []);
+  }, [isClient]);
 
   return config;
 }

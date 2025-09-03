@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -13,6 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://incrypto.app'),
   title: "Incrypto - Criptografia Educacional",
   description: "Aplicação educacional para aprender algoritmos de criptografia de forma interativa",
   keywords: ["criptografia", "educação", "césar", "vigenère", "base64", "rot13", "segurança"],
@@ -25,14 +26,6 @@ export const metadata: Metadata = {
     telephone: false,
   },
   manifest: "/manifest.json",
-  themeColor: "#00ffc3",
-  colorScheme: "dark",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -68,6 +61,15 @@ export const metadata: Metadata = {
       { url: "/icon-192x192.svg", sizes: "192x192", type: "image/svg+xml" },
     ],
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: "#00ffc3",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({

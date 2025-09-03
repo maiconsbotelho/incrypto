@@ -14,12 +14,17 @@ export default function KeyInput({ algorithm, value, onChange, className = "" }:
   const info = algorithmInfo[algorithm];
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ left: 0, top: 0 });
+  const [isClient, setIsClient] = useState(false);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (showTooltip && tooltipRef.current) {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (showTooltip && tooltipRef.current && isClient) {
       const tooltip = tooltipRef.current;
       const tooltipRect = tooltip.getBoundingClientRect();
       const viewportWidth = window.innerWidth;
@@ -46,7 +51,7 @@ export default function KeyInput({ algorithm, value, onChange, className = "" }:
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [showTooltip, algorithm]);
+  }, [showTooltip, algorithm, isClient]);
   
   // Algoritmos que não precisam de chave
   if (info.keyType === 'none') {

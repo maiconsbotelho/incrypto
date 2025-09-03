@@ -11,6 +11,12 @@ interface DisplayProps {
 
 export function Display({ result, isLoading = false, algorithm, showCopyButton = true }: DisplayProps) {
   const [copied, setCopied] = useState(false);
+  const [displayedText, setDisplayedText] = useState("");
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleCopy = async () => {
     try {
@@ -21,10 +27,9 @@ export function Display({ result, isLoading = false, algorithm, showCopyButton =
       console.error('Erro ao copiar:', error);
     }
   };
-  const [displayedText, setDisplayedText] = useState("");
 
   useEffect(() => {
-    if (!isLoading) {
+    if (!isLoading && isClient) {
       // Resetamos o texto antes de começar a digitar novamente
       setDisplayedText("");
 
@@ -43,7 +48,7 @@ export function Display({ result, isLoading = false, algorithm, showCopyButton =
 
       return () => clearInterval(interval);
     }
-  }, [result, isLoading]);
+  }, [result, isLoading, isClient]);
 
   if (isLoading) {
     return (
@@ -81,7 +86,7 @@ export function Display({ result, isLoading = false, algorithm, showCopyButton =
       {/* Resultado */}
       <div className="text-center">
         <p className="text-white font-mono text-sm sm:text-base break-all">
-          {displayedText}
+          {isClient ? displayedText : result}
         </p>
       </div>
     </div>
