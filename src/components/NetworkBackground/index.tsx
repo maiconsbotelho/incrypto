@@ -1,18 +1,44 @@
 "use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useState, useEffect } from "react";
 import * as THREE from "three";
 
-const NUM_POINTS = 100;
-const CONNECT_DISTANCE = 2;
+// Otimização mobile-first: configuração responsiva
+function useResponsiveConfig() {
+  const [config, setConfig] = useState({ numPoints: 75, connectDistance: 1.8 });
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+    
+    const updateConfig = () => {
+      const width = window.innerWidth;
+      setConfig({
+        numPoints: width < 768 ? 50 : width < 1024 ? 75 : 100,
+        connectDistance: width < 768 ? 1.5 : 2
+      });
+    };
+
+    updateConfig();
+    window.addEventListener('resize', updateConfig);
+    return () => window.removeEventListener('resize', updateConfig);
+  }, [isClient]);
+
+  return config;
+}
 
 function Network() {
   const pointsRef = useRef<THREE.Points>(null);
   const linesRef = useRef<THREE.LineSegments>(null);
+  const { numPoints, connectDistance } = useResponsiveConfig();
 
   const particles = useMemo(() => {
-    return Array.from({ length: NUM_POINTS }, () => ({
+    return Array.from({ length: numPoints }, () => ({
       position: new THREE.Vector3((Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10),
       velocity: new THREE.Vector3(
         (Math.random() - 0.5) * 0.01,
@@ -54,7 +80,7 @@ function Network() {
         const b = particles[j].position;
 
         const dist = a.distanceTo(b);
-        if (dist < CONNECT_DISTANCE) {
+        if (dist < connectDistance) {
           linePositions.push(a.x, a.y, a.z, b.x, b.y, b.z);
         }
       }

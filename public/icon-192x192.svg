@@ -1,0 +1,33 @@
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="96" cy="96" r="96" fill="#000000"/>
+  
+  <!-- Outer ring -->
+  <circle cx="96" cy="96" r="80" stroke="#00ffc3" stroke-width="4" fill="none"/>
+  
+  <!-- Lock icon -->
+  <g transform="translate(96, 96)">
+    <!-- Lock body -->
+    <rect x="-20" y="-5" width="40" height="30" rx="4" fill="#00ffc3"/>
+    
+    <!-- Lock shackle -->
+    <path d="M -15 -5 L -15 -15 Q -15 -25 0 -25 Q 15 -25 15 -15 L 15 -5" 
+          stroke="#00ffc3" stroke-width="4" fill="none"/>
+    
+    <!-- Keyhole -->
+    <circle cx="0" cy="5" r="4" fill="#000000"/>
+    <rect x="-1" y="5" width="2" height="8" fill="#000000"/>
+  </g>
+  
+  <!-- Decorative elements -->
+  <g opacity="0.3">
+    <!-- Binary pattern -->
+    <text x="30" y="40" font-family="monospace" font-size="12" fill="#00ffc3">01</text>
+    <text x="140" y="60" font-family="monospace" font-size="12" fill="#00ffc3">10</text>
+    <text x="50" y="150" font-family="monospace" font-size="12" fill="#00ffc3">11</text>
+    <text x="130" y="140" font-family="monospace" font-size="12" fill="#00ffc3">00</text>
+  </g>
+  
+  <!-- App name -->
+  <text x="96" y="170" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#00ffc3">INCRYPTO</text>
+</svg>
