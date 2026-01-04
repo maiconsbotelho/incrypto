@@ -7,9 +7,10 @@ interface DisplayProps {
   isLoading?: boolean;
   algorithm?: string;
   showCopyButton?: boolean;
+  className?: string;
 }
 
-export function Display({ result, isLoading = false, algorithm, showCopyButton = true }: DisplayProps) {
+export function Display({ result, isLoading = false, algorithm, showCopyButton = true, className = "" }: DisplayProps) {
   const [copied, setCopied] = useState(false);
   const [displayedText, setDisplayedText] = useState("");
   const [isClient, setIsClient] = useState(false);
@@ -52,7 +53,7 @@ export function Display({ result, isLoading = false, algorithm, showCopyButton =
 
   if (isLoading) {
     return (
-      <div className="w-full mt-8 p-4 bg-black/40 rounded border border-white break-words text-center">
+      <div className={`w-full p-4 bg-black/40 rounded border border-white break-words text-center flex flex-col items-center justify-center ${className}`}>
         <div className="flex items-center justify-center space-x-2">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
           <p className="text-white">Processando...</p>
@@ -62,7 +63,7 @@ export function Display({ result, isLoading = false, algorithm, showCopyButton =
   }
 
   return (
-    <div className="w-full mt-8 p-4 bg-black/40 rounded border border-white break-words">
+    <div className={`w-full p-4 bg-black/40 rounded border border-white break-words flex flex-col ${className}`}>
       {/* Header com algoritmo e botão copiar */}
       <div className="flex justify-between items-center mb-3">
         <span className="text-xs text-gray-400">
@@ -84,7 +85,7 @@ export function Display({ result, isLoading = false, algorithm, showCopyButton =
       </div>
       
       {/* Resultado */}
-      <div className="text-center">
+      <div className="text-center flex-1 flex items-center justify-center">
         <p className="text-white font-mono text-sm sm:text-base break-all">
           {isClient ? displayedText : result}
         </p>

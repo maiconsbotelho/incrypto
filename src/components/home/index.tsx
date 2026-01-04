@@ -117,94 +117,106 @@ export default function HomePage() {
   return (
     <main className="relative min-h-screen flex flex-col items-center pt-8 sm:pt-12 md:pt-16 lg:pt-20 justify-start text-white font-sans px-4 sm:px-6 md:px-8 overflow-hidden">
       <NetworkBackground />
-      <Logo />
       
-      {/* Visor de Resultado no Topo - Sempre Visível */}
-      <div className="w-full flex flex-col items-center justify-center max-w-sm sm:max-w-md lg:max-w-2xl xl:max-w-4xl mt-6 sm:mt-8 z-10 px-4">
-        <div className="w-full max-w-md space-y-4 transition-all duration-500 ease-in-out">
-          {autoDetectResult && (
-              <div className="w-full mb-4 p-3 bg-purple-900/30 border border-purple-600/50 rounded-lg animate-slideDown transition-all duration-300">
-                <p className="text-purple-300 text-sm text-center animate-fadeIn">
-                  {autoDetectResult}
-                </p>
-              </div>
-            )}
-          <Display 
-            result={resultado || "Aguardando entrada..."} 
-            isLoading={!!loadingAction} 
-            algorithm={algorithmInfo[algorithm].name}
-            showCopyButton={!!resultado}
-          />
-        </div>
-      </div>
-      
-      <div className="w-full flex flex-col items-center justify-center max-w-sm sm:max-w-md lg:max-w-2xl xl:max-w-4xl mt-4 sm:mt-6 gap-4 sm:gap-6 z-10">
-        <div className="w-full max-w-md space-y-6 transition-all duration-500 ease-in-out">
+      <div className="z-10 w-full max-w-6xl flex flex-col items-center gap-6 sm:gap-8 mb-10">
+        <Logo />
+        
+        {/* Main Card Container - Glassmorphism */}
+        <div className="w-full bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl flex flex-col lg:flex-row gap-8 lg:gap-12 items-stretch transition-all duration-300 hover:shadow-purple-500/10 hover:border-white/20">
           
-          {/* Seletores de Algoritmo e Chave */}
-          <div className="flex gap-3">
-            <div className="flex-1">
-              <AlgorithmSelector
-                value={algorithm}
-                onChange={handleAlgorithmChange}
-              />
-            </div>
-            
-            {algorithmInfo[algorithm].keyType === 'number' && (
-              <div className="w-24">
-                <KeyInput
-                  algorithm={algorithm}
-                  value={key}
-                  onChange={setKey}
-                />
-              </div>
-            )}
-          </div>
-          
-          {/* Chave de texto (quando necessária) */}
-          {algorithmInfo[algorithm].keyType === 'text' && (
-            <KeyInput
-              algorithm={algorithm}
-              value={key}
-              onChange={setKey}
-            />
-          )}
-          
-          <CampoEntrada
-              id="texto"
-              label="Mensagem:"
-              value={texto}
-              onChange={(e) => setTexto(e.target.value)}
-              placeholder="Digite sua mensagem aqui..."
-            />
-          
-          <div className="w-full mx-auto flex flex-col gap-3 transition-all duration-300 ease-in-out">
-             <div className="flex flex-col sm:flex-row gap-3 w-full">
-               <Botao 
-                 onClick={() => handleCryptography('encrypt')}
-                 className="flex-1 w-full sm:w-auto !mt-0 !mx-0"
-               >
-                 {loadingAction === 'encrypt' ? "Criptografando..." : "🔒 Criptografar"}
-               </Botao>
-               
-               <Botao 
-                 onClick={() => handleCryptography('decrypt')}
-                 className="flex-1 w-full sm:w-auto !mt-0 !mx-0"
-               >
-                 {loadingAction === 'decrypt' ? "Descriptografando..." : "🔓 Descriptografar"}
-               </Botao>
+          {/* Left Column: Controls */}
+          <div className="flex-1 flex flex-col gap-6 order-2 lg:order-1">
+             <div className="space-y-6">
+                {/* Seletores de Algoritmo e Chave */}
+                <div className="flex gap-3">
+                  <div className="flex-1">
+                    <AlgorithmSelector
+                      value={algorithm}
+                      onChange={handleAlgorithmChange}
+                    />
+                  </div>
+                  
+                  {algorithmInfo[algorithm].keyType === 'number' && (
+                    <div className="w-24">
+                      <KeyInput
+                        algorithm={algorithm}
+                        value={key}
+                        onChange={setKey}
+                      />
+                    </div>
+                  )}
+                </div>
+                
+                {/* Chave de texto (quando necessária) */}
+                {algorithmInfo[algorithm].keyType === 'text' && (
+                  <KeyInput
+                    algorithm={algorithm}
+                    value={key}
+                    onChange={setKey}
+                  />
+                )}
+                
+                <CampoEntrada
+                    id="texto"
+                    label="Mensagem:"
+                    value={texto}
+                    onChange={(e) => setTexto(e.target.value)}
+                    placeholder="Digite sua mensagem aqui..."
+                  />
+                
+                <div className="w-full mx-auto flex flex-col gap-3">
+                   <div className="flex flex-col sm:flex-row gap-3 w-full">
+                     <Botao 
+                       onClick={() => handleCryptography('encrypt')}
+                       className="flex-1 w-full sm:w-auto !mt-0 !mx-0"
+                     >
+                       {loadingAction === 'encrypt' ? "Criptografando..." : "🔒 Criptografar"}
+                     </Botao>
+                     
+                     <Botao 
+                       onClick={() => handleCryptography('decrypt')}
+                       className="flex-1 w-full sm:w-auto !mt-0 !mx-0"
+                     >
+                       {loadingAction === 'decrypt' ? "Descriptografando..." : "🔓 Descriptografar"}
+                     </Botao>
+                   </div>
+                   
+                   <Botao 
+                     onClick={handleAutoDecrypt}
+                     className="!mt-0 w-full bg-gray-700/50 hover:bg-gray-700 !from-transparent !via-transparent !to-transparent border border-gray-600"
+                   >
+                     {loadingAction === 'auto' ? "Detectando..." : "🤖 Detecção Automática"}
+                   </Botao>
+                 </div>
              </div>
-             
-             <Botao 
-               onClick={handleAutoDecrypt}
-               className="!mt-0 w-full bg-gray-700/50 hover:bg-gray-700 !from-transparent !via-transparent !to-transparent border border-gray-600"
-             >
-               {loadingAction === 'auto' ? "Detectando..." : "🤖 Detecção Automática"}
-             </Botao>
-           </div>
-           
+          </div>
+
+          {/* Separator for Desktop */}
+          <div className="hidden lg:block w-px bg-gradient-to-b from-transparent via-white/10 to-transparent self-stretch mx-2 order-1 lg:order-2"></div>
+
+          {/* Right Column: Display */}
+          <div className="flex-1 flex flex-col order-1 lg:order-3 min-h-[150px] lg:min-h-auto">
+             <div className="flex-1 flex flex-col h-full">
+                {autoDetectResult && (
+                  <div className="w-full mb-4 p-3 bg-purple-900/30 border border-purple-600/50 rounded-lg animate-slideDown transition-all duration-300">
+                    <p className="text-purple-300 text-sm text-center animate-fadeIn">
+                      {autoDetectResult}
+                    </p>
+                  </div>
+                )}
+                <Display 
+                  result={resultado || "Aguardando entrada..."} 
+                  isLoading={!!loadingAction} 
+                  algorithm={algorithmInfo[algorithm].name}
+                  showCopyButton={!!resultado}
+                  className="h-full min-h-[150px] lg:min-h-0"
+                />
+             </div>
+          </div>
+
         </div>
       </div>
+
       <Modal
         isOpen={modalAberto}
         onClose={() => setModalAberto(false)}
