@@ -9,7 +9,7 @@ export interface CryptographyResult {
 }
 
 // Definição do conjunto de caracteres suportados (Letras, números e símbolos)
-const CHAR_SET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;':\",./<>?`~\\";
+const CHAR_SET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&";
 
 // Cifra Estendida (Super Caesar)
 // Agora adiciona ruído e remove espaços
@@ -263,7 +263,7 @@ export const algorithmInfo = {
   },
   extended: {
     name: 'Cifra Estendida',
-    description: 'Versão avançada que remove espaços, adiciona ruído para dobrar o tamanho da mensagem e suporta todos os caracteres.',
+    description: 'Versão avançada que remove espaços, adiciona ruído para dobrar o tamanho da mensagem e suporta letras, números e símbolos (!@#$%&).',
     keyType: 'number',
     keyLabel: 'Desloc.',
     keyPlaceholder: 'Ex: 3',
