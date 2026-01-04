@@ -1,11 +1,68 @@
 // Utilitários de criptografia para múltiplos algoritmos
 
-export type CryptographyAlgorithm = 'caesar' | 'vigenere' | 'base64' | 'rot13';
+export type CryptographyAlgorithm = 'caesar' | 'vigenere' | 'base64' | 'rot13' | 'extended';
 
 export interface CryptographyResult {
   result: string;
   algorithm: CryptographyAlgorithm;
   key?: string | number;
+}
+
+// Definição do conjunto de caracteres suportados (Letras, números e símbolos)
+const CHAR_SET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;':\",./<>?`~\\";
+
+// Cifra Estendida (Super Caesar)
+// Agora adiciona ruído e remove espaços
+export function extendedCipher(text: string, shift: number): string {
+  // Remover espaços
+  const textNoSpaces = text.replace(/\s/g, '');
+  
+  return textNoSpaces
+    .split('')
+    .map(char => {
+      const index = CHAR_SET.indexOf(char);
+      if (index !== -1) {
+        // Encontrar nova posição com rotação correta
+        let newIndex = (index + shift) % CHAR_SET.length;
+        if (newIndex < 0) newIndex += CHAR_SET.length;
+        
+        const encryptedChar = CHAR_SET[newIndex];
+        
+        // Adicionar um caractere de "ruído" aleatório (mas determinístico baseado no caractere original e shift)
+        // Isso aumenta o tamanho da string resultante
+        const noiseIndex = (index * shift + newIndex) % CHAR_SET.length;
+        const noiseChar = CHAR_SET[noiseIndex];
+        
+        return encryptedChar + noiseChar;
+      }
+      return char;
+    })
+    .join('');
+}
+
+// Descriptografia Estendida
+export function extendedDecipher(text: string, shift: number): string {
+  // Como cada caractere original vira 2 na criptografia, processamos em pares
+  let decrypted = '';
+  
+  for (let i = 0; i < text.length; i += 2) {
+    // Pegamos apenas o primeiro caractere do par (o segundo é ruído)
+    const char = text[i];
+    
+    // Se não tiver par (último caractere solto de string ímpar - não deveria acontecer mas protegemos)
+    if (!char) break;
+
+    const index = CHAR_SET.indexOf(char);
+    if (index !== -1) {
+      let originalIndex = (index - shift) % CHAR_SET.length;
+      if (originalIndex < 0) originalIndex += CHAR_SET.length;
+      decrypted += CHAR_SET[originalIndex];
+    } else {
+      decrypted += char;
+    }
+  }
+  
+  return decrypted;
 }
 
 // Cifra de César
@@ -135,6 +192,11 @@ export function encrypt(text: string, algorithm: CryptographyAlgorithm, key?: st
       result = caesarCipher(text, shift);
       return { result, algorithm, key: shift };
       
+    case 'extended':
+      const extShift = typeof key === 'number' ? key : parseInt(key as string) || 3;
+      result = extendedCipher(text, extShift);
+      return { result, algorithm, key: extShift };
+
     case 'vigenere':
       const vigenereKey = (key as string) || 'CHAVE';
       result = vigenereCipher(text, vigenereKey);
@@ -164,6 +226,11 @@ export function decrypt(text: string, algorithm: CryptographyAlgorithm, key?: st
       result = caesarDecipher(text, shift);
       return { result, algorithm, key: shift };
       
+    case 'extended':
+      const extShift = typeof key === 'number' ? key : parseInt(key as string) || 3;
+      result = extendedDecipher(text, extShift);
+      return { result, algorithm, key: extShift };
+
     case 'vigenere':
       const vigenereKey = (key as string) || 'CHAVE';
       result = vigenereDecipher(text, vigenereKey);
@@ -193,6 +260,14 @@ export const algorithmInfo = {
     keyLabel: 'Desloc.',
     keyPlaceholder: 'Ex: 3',
     example: 'HELLO → KHOOR (deslocamento 3)'
+  },
+  extended: {
+    name: 'Cifra Estendida',
+    description: 'Versão avançada que remove espaços, adiciona ruído para dobrar o tamanho da mensagem e suporta todos os caracteres.',
+    keyType: 'number',
+    keyLabel: 'Desloc.',
+    keyPlaceholder: 'Ex: 3',
+    example: 'Ola Mundo → R$od#P%x (exemplo simplificado)'
   },
   vigenere: {
     name: 'Cifra de Vigenère',
@@ -229,9 +304,18 @@ export function detectAlgorithm(text: string): CryptographyAlgorithm[] {
     possibilities.push('base64');
   }
   
-  // ROT13/César: apenas letras
+  // ROT13/César: apenas letras para ROT13
   if (/^[A-Za-z\s]*$/.test(text)) {
-    possibilities.push('rot13', 'caesar', 'vigenere');
+    possibilities.push('rot13');
+  }
+  // Caesar sempre possível para textos simples
+  possibilities.push('caesar');
+  
+  // Estendida sempre possível
+  possibilities.push('extended');
+  
+  if (/^[A-Za-z\s]*$/.test(text)) {
+    possibilities.push('vigenere');
   }
   
   return possibilities.length > 0 ? possibilities : ['caesar'];
@@ -253,6 +337,11 @@ export function detectPossibleAlgorithms(text: string): CryptographyAlgorithm[] 
   // Caesar cipher detection - only letters and spaces
   if (/^[A-Za-z\s]*$/.test(text) && text.trim().length > 0) {
     algorithms.push('caesar');
+  }
+
+  // Extended detection - accepts almost anything
+  if (text.trim().length > 0) {
+    algorithms.push('extended');
   }
   
   // Vigenère detection - only letters and spaces
@@ -322,6 +411,39 @@ export function autoDecrypt(encryptedText: string): {
         if (hasCommonWords && alternatives.length === 1) {
           return {
             algorithm: 'caesar',
+            result: result,
+            confidence: 'medium',
+            alternatives: alternatives.slice(1)
+          };
+        }
+      } catch (error) {
+        // Continue
+      }
+    }
+  }
+
+  // Try Extended Cipher with common keys (1-25)
+  // Check if text has special chars or numbers which suggests Extended Cipher
+  const hasSpecialChars = /[^A-Za-z\s]/.test(encryptedText);
+  if (encryptedText.trim().length > 0) {
+    for (let key = 1; key <= 25; key++) {
+      try {
+        const result = extendedDecipher(encryptedText, key);
+        // Simple heuristic: check if result contains common English words
+        const commonWords = ['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'her', 'was', 'one', 'our', 'had', 'by', 'word', 'what', 'said'];
+        const lowerResult = result.toLowerCase();
+        const hasCommonWords = commonWords.some(word => lowerResult.includes(word));
+        
+        alternatives.push({
+          algorithm: 'extended',
+          result: result,
+          key: key
+        });
+        
+        // If we find common English words, prioritize this result, especially if input had special chars
+        if (hasCommonWords && (hasSpecialChars || alternatives.length === 1)) {
+          return {
+            algorithm: 'extended',
             result: result,
             confidence: 'medium',
             alternatives: alternatives.slice(1)

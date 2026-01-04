@@ -13,55 +13,14 @@ import Logo from "../logo";
 import Modal from "../modal";
 import Tutorial from "../tutorial";
 
-const alfabeto = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split("");
-const alfabetoSubstituto = [
-  "@",
-  "s",
-  "4",
-  "1",
-  "m",
-  "n",
-  "b",
-  "!",
-  "7",
-  "x",
-  "9",
-  "6",
-  "3",
-  "%",
-  "f",
-  "&",
-  "5",
-  "L",
-  "K",
-  "J",
-  "2",
-  "#",
-  "8",
-  "Q",
-  "A",
-  "Z",
-  "g",
-  "t",
-  "v",
-  "E",
-  "D",
-  "C",
-  "$",
-  "0",
-  "P",
-  "h",
-];
-
 export default function HomePage() {
   const [texto, setTexto] = useState("");
   const [algorithm, setAlgorithm] = useState<CryptographyAlgorithm>('caesar');
   const [key, setKey] = useState<string | number>(3);
   const [resultado, setResultado] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [loadingAction, setLoadingAction] = useState<'encrypt' | 'decrypt' | 'auto' | null>(null);
   const [modalAberto, setModalAberto] = useState(false);
   const [tutorialAberto, setTutorialAberto] = useState(false);
-  const [mode, setMode] = useState<'encrypt' | 'decrypt'>('encrypt');
   const [autoDetectResult, setAutoDetectResult] = useState<string>('');
 
   const handleAlgorithmChange = (newAlgorithm: CryptographyAlgorithm) => {
@@ -79,8 +38,11 @@ export default function HomePage() {
     setResultado('');
   };
 
-  const handleCryptography = async () => {
-    if (!texto.trim()) return;
+  const handleCryptography = async (action: 'encrypt' | 'decrypt') => {
+    if (!texto.trim()) {
+      setResultado('Por favor, digite uma mensagem para processar.');
+      return;
+    }
     
     // Validar chave para algoritmos que precisam
     const info = algorithmInfo[algorithm];
@@ -89,7 +51,7 @@ export default function HomePage() {
       return;
     }
     
-    setIsLoading(true);
+    setLoadingAction(action);
     
     try {
       // Simula delay de processamento
@@ -97,7 +59,7 @@ export default function HomePage() {
       
       let result: string;
       
-      if (mode === 'encrypt') {
+      if (action === 'encrypt') {
         const encryptResult = encrypt(texto, algorithm, key);
         result = encryptResult.result;
       } else {
@@ -112,13 +74,16 @@ export default function HomePage() {
       setResultado('Erro ao processar o texto');
     }
     
-    setIsLoading(false);
+    setLoadingAction(null);
   };
 
   const handleAutoDecrypt = async () => {
-    if (!texto.trim()) return;
+    if (!texto.trim()) {
+      setResultado('Por favor, digite uma mensagem para a detecção automática.');
+      return;
+    }
     
-    setIsLoading(true);
+    setLoadingAction('auto');
     
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -146,7 +111,7 @@ export default function HomePage() {
       setAutoDetectResult('❌ Erro na detecção');
     }
     
-    setIsLoading(false);
+    setLoadingAction(null);
   };
 
   return (
@@ -166,7 +131,7 @@ export default function HomePage() {
             )}
           <Display 
             result={resultado || "Aguardando entrada..."} 
-            isLoading={isLoading} 
+            isLoading={!!loadingAction} 
             algorithm={algorithmInfo[algorithm].name}
             showCopyButton={!!resultado}
           />
@@ -175,30 +140,7 @@ export default function HomePage() {
       
       <div className="w-full flex flex-col items-center justify-center max-w-sm sm:max-w-md lg:max-w-2xl xl:max-w-4xl mt-4 sm:mt-6 gap-4 sm:gap-6 z-10">
         <div className="w-full max-w-md space-y-6 transition-all duration-500 ease-in-out">
-          {/* Seletor de Modo */}
-          <div className="flex bg-gray-800 rounded-lg p-1 border border-gray-600">
-            <button
-              onClick={() => setMode('encrypt')}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
-                mode === 'encrypt'
-                  ? 'bg-[#00ffc3] text-black'
-                  : 'text-gray-300 hover:text-white'
-              }`}
-            >
-              🔒 Criptografar
-            </button>
-            <button
-              onClick={() => setMode('decrypt')}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
-                mode === 'decrypt'
-                  ? 'bg-[#00ffc3] text-black'
-                  : 'text-gray-300 hover:text-white'
-              }`}
-            >
-              🔓 Descriptografar
-            </button>
-          </div>
-
+          
           {/* Seletores de Algoritmo e Chave */}
           <div className="flex gap-3">
             <div className="flex-1">
@@ -230,31 +172,37 @@ export default function HomePage() {
           
           <CampoEntrada
               id="texto"
-              label={mode === 'encrypt' ? "Texto para criptografar:" : "Texto para descriptografar:"}
+              label="Mensagem:"
               value={texto}
               onChange={(e) => setTexto(e.target.value)}
-              placeholder={mode === 'encrypt' 
-                ? "Digite o texto para criptografar..." 
-                : "Digite o texto para descriptografar..."
-              }
+              placeholder="Digite sua mensagem aqui..."
             />
           
-          <div className="space-y-3 w-full mx-auto flex flex-col transition-all duration-300 ease-in-out">
-             <Botao onClick={handleCryptography}>
-               {isLoading 
-                 ? (mode === 'encrypt' ? "Criptografando..." : "Descriptografando...") 
-                 : (mode === 'encrypt' ? "🔒 Criptografar" : "🔓 Descriptografar")
-               }
-             </Botao>
+          <div className="w-full mx-auto flex flex-col gap-3 transition-all duration-300 ease-in-out">
+             <div className="flex flex-col sm:flex-row gap-3 w-full">
+               <Botao 
+                 onClick={() => handleCryptography('encrypt')}
+                 className="flex-1 w-full sm:w-auto !mt-0 !mx-0"
+               >
+                 {loadingAction === 'encrypt' ? "Criptografando..." : "🔒 Criptografar"}
+               </Botao>
+               
+               <Botao 
+                 onClick={() => handleCryptography('decrypt')}
+                 className="flex-1 w-full sm:w-auto !mt-0 !mx-0"
+               >
+                 {loadingAction === 'decrypt' ? "Descriptografando..." : "🔓 Descriptografar"}
+               </Botao>
+             </div>
              
-             {mode === 'decrypt' && (
-                <Botao onClick={handleAutoDecrypt}>
-                  {isLoading ? "Detectando..." : "🤖 Detecção Automática"}
-                </Botao>
-              )}
+             <Botao 
+               onClick={handleAutoDecrypt}
+               className="!mt-0 w-full bg-gray-700/50 hover:bg-gray-700 !from-transparent !via-transparent !to-transparent border border-gray-600"
+             >
+               {loadingAction === 'auto' ? "Detectando..." : "🤖 Detecção Automática"}
+             </Botao>
            </div>
            
-
         </div>
       </div>
       <Modal

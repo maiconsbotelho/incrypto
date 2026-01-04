@@ -38,6 +38,17 @@ const tutorialSteps: TutorialStep[] = [
     }
   },
   {
+    id: "extended",
+    title: "Cifra Estendida 🚀",
+    content: "Uma versão moderna e poderosa! Ela remove espaços, dobra o tamanho da mensagem adicionando caracteres de ruído e suporta símbolos, números e letras.",
+    algorithm: "extended",
+    example: {
+      input: "Oi 123",
+      key: 3,
+      output: "Rl#4$5%6"
+    }
+  },
+  {
     id: "vigenere",
     title: "Cifra de Vigenère 🔑",
     content: "Mais segura que César, a cifra de Vigenère usa uma palavra-chave. Cada letra da mensagem é deslocada por um valor diferente baseado na chave.",

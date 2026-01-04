@@ -34,7 +34,7 @@ export function Display({ result, isLoading = false, algorithm, showCopyButton =
       setDisplayedText("");
 
       let index = 0;
-      const typingSpeed = 80;
+      const typingSpeed = 20;
 
       const interval = setInterval(() => {
         if (index < result.length) {

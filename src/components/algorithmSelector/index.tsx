@@ -10,7 +10,7 @@ interface AlgorithmSelectorProps {
 }
 
 export default function AlgorithmSelector({ value, onChange, className = "" }: AlgorithmSelectorProps) {
-  const algorithms: CryptographyAlgorithm[] = ['caesar', 'vigenere', 'base64', 'rot13'];
+  const algorithms: CryptographyAlgorithm[] = ['caesar', 'extended', 'vigenere', 'base64', 'rot13'];
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ left: 0, top: 0 });
   const [isClient, setIsClient] = useState(false);
